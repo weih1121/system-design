@@ -1,0 +1,14 @@
+# python compile files
+*.pyc
+__pycache__
+# mac os caches
+.DS_Store
+# pycharm caches
+.idea
+*.egg*
+*.swp
+.ipynb_checkpoints
+# vscode configs
+.vscode/settings.json
+.vscode/launch.json
+.vscode/PythonImportHelper-v2-Completion.json
