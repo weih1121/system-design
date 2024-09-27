@@ -1,0 +1,73 @@
+Designing Systems and Features:
+Understanding Requirements
+When designing a system or feature, we need to ensure that our design addresses the requirements. There are two types of requirements:
+
+Functional Requirements: Define the behavior of the system—what the system is supposed to do.
+
+Example: For a messaging system, a functional requirement might be:
+The system must allow applications to exchange messages.
+Non-Functional Requirements: Define the qualities of a system—how the system is supposed to be.
+
+Example: For a messaging system, non-functional requirements might include:
+The system should be scalable, highly available, and fast.
+The Importance of Clarifying Requirements in Interviews
+During an interview, functional requirements are often stated ambiguously by the interviewer, and non-functional requirements may not be mentioned at all. There is a reason for this:
+
+Data Collection: The goal of interviews is to gather as many data points about the candidate as possible.
+Assessing Problem-Solving Skills: By presenting the problem in a generic form, the interviewer can evaluate how you deal with ambiguity, identify key parts of the system, and define the scope of the problem.
+Understanding Your Approach: The interviewer wants to understand how you will approach solving problems in real life when hired.
+Another important reason for clarifying requirements, especially non-functional ones, is that system design interview problems are usually open-ended with many possible solutions. There are numerous concepts, patterns, and technologies that can be applied, each with their own trade-offs. Non-functional requirements help us navigate these trade-offs and guide our design decisions.
+
+Example: Designing a Messaging System
+Let's consider the non-functional requirements for a messaging system: scalable, highly available, and fast. These requirements provide significant insight into how we should design the system.
+
+Scalability
+Scaling for Writes and Reads: Since every message will be written and later consumed, we need to scale for both writes and reads.
+Partitioning Messages:
+Strategy: Use partitioning to store messages across multiple queues instead of a single queue.
+Partition Strategy: A hash strategy can be effective for distributing messages evenly.
+Storing Messages Quickly:
+In Memory: Use a bounded queue for rapid access.
+On Disk:
+Append-Only Log: Efficient for sequential writes.
+Embedded Database:
+Database Type: An LSM-tree database is preferable over a B-tree for faster write performance.
+Scaling Reads:
+Consumers per Partition: Having one consumer per partition improves read scalability.
+Push vs. Pull Model:
+Pull Model with Long Polling: Supports efficient reads by reducing the number of requests when no new messages are available.
+High Availability
+Message Replication:
+Replication Strategy: Leader-based replication is often used.
+Leader Election: Implementing a leader election mechanism, possibly using a coordination service or a strongly consistent database.
+Protection Mechanisms:
+Load Shedding and Rate Limiting: Prevents system overload by controlling the flow of requests.
+Shuffle Sharding: Distributes load and isolates failures.
+Reverse Proxy:
+Simplifies client logic by handling partition discovery and message routing.
+Centralizes functionality like load balancing and request routing.
+Performance (Speed)
+Batching and Compressing Messages: Improves throughput and reduces latency.
+Communication Protocol:
+TCP vs. HTTP: Using TCP may be more efficient if clients are trusted and operate in secure environments.
+Clarifying with Stakeholders: Always confirm assumptions and choices with the interviewer or team to ensure alignment with requirements.
+The Power of Identifying Non-Functional Requirements
+This exercise demonstrates the importance of identifying non-functional requirements:
+
+Guidance in Design Choices: Knowing the requirements helps in selecting appropriate technologies and patterns.
+Effective Communication: Enables meaningful discussions with interviewers or team members.
+Problem-Solving Efficiency: Allows for a focused approach to addressing the system's needs.
+Working with Your Interviewer
+Collaboration: Work closely with the interviewer to define requirements and clarify ambiguities.
+Perspective: View the interviewer as a potential teammate who wants you to succeed.
+Demonstrating Skills: Show how you approach problems, make decisions, and adapt to new information.
+Handling Difficult Situations: If the interviewer is unhelpful, remain professional and do your best to engage constructively.
+Applying These Principles in Daily Work
+Defining Requirements: Critical when writing system design documents or starting new projects.
+Scope Management: Clearly defining the problem scope helps in delivering effective solutions.
+Design Tenets: Common to express system qualities like security, availability, and performance as part of the design principles.
+Conclusion
+Understand and Clarify Requirements: Both functional and non-functional requirements are essential for successful system design.
+Continuous Learning: Stay curious and keep learning about system design concepts and technologies.
+Collaborate and Communicate: Effective communication with team members and stakeholders leads to better outcomes.
+Remember, the ability to define and work with requirements is a valuable skill that extends beyond interviews into all aspects of software development.
