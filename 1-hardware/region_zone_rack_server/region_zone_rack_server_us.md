@@ -1,113 +1,120 @@
-## Introduction
+## 引言
 
-When designing a system to achieve qualities we've just discussed, both software and hardware have to work together. Let me demonstrate this using a simple example.
+在设计一个系统以实现我们刚刚讨论的品质时，软件和硬件必须协同工作。让我用一个简单的例子来演示。
 
-## Evolution of a Startup's System
+## 初创公司的系统演进
 
-### Initial Deployment
+### 最初部署
 
-Imagine that you are a startup founder. You build a minimum viable product (MVP), a web application. You deploy the application to the general purpose server that you bought in advance and installed in your home garage. The web application accepts HTTP requests from users all over the world, processes these requests, and stores data in a database.
+假设你是一家初创公司的创始人。你构建了一个最小可行产品（MVP），一个网络应用。你将该应用部署到你提前购买并安装在家中车库的通用服务器上。该网络应用接受来自全球用户的HTTP请求，处理这些请求，并将数据存储在数据库中。
 
-### Identifying Bottlenecks
+### 识别瓶颈
 
-Initially, you deploy the database to the same physical server as the web application. But over time, you realize that your web application is CPU bound. It needs a lot of CPU resources to process all the requests, while your database requires a lot of memory and disk space. A single host with a lot of CPU, memory, and disk capacity is pricey.
+最初，你将数据库部署在与网络应用相同的物理服务器上。但随着时间的推移，你意识到你的网络应用是CPU瓶颈。它需要大量的CPU资源来处理所有请求，而你的数据库则需要大量的内存和磁盘空间。拥有大量CPU、内存和磁盘容量的单一主机价格昂贵。
 
-### Optimizing Resources
+### 优化资源
 
-But if you buy two servers, a compute-optimized one with high-performance processors, and a storage-optimized one with a lot of memory and disk space, it is cheaper and easier to scale up in the future. So you move the database to its own dedicated server. The setup worked really well for a while, until one day your dog accidentally turned off the application server. At that point, you decided to make your system more reliable.
+但如果你购买两台服务器，一台是计算优化型，配备高性能处理器，另一台是存储优化型，配备大量内存和磁盘空间，成本更低，并且未来更容易扩展。因此，你将数据库迁移到其专用服务器上。这个设置运行得非常好，直到有一天，你的狗不小心关闭了应用服务器。这时，你决定让系统更加可靠。
 
-### Increasing Reliability
+### 增加可靠性
 
-So you bought a server rack. Then put and locked both your servers in the rack, away from your pets. Second, you bought one more application server and added it to the rack. Actually, you bought two servers: one application server and one more small server to act as a load balancer and distribute requests across application servers. To achieve data durability, you bought an additional database server and implemented data replication and backups. The setup worked really well for a while, until one day there happened a power outage in your area, and all servers died. At that point, you decided to further increase the reliability of your system.
+因此，你购买了一个服务器机架，然后将两台服务器放入机架并锁上，远离宠物。接着，你又购买了一台应用服务器并将其添加到机架中。实际上，你购买了两台服务器。一台应用服务器和一台小型服务器，作为负载均衡器，分发请求到应用服务器。为了实现数据耐久性，你购买了另一台数据库服务器，并实施了数据复制和备份。这个设置运行得非常好，直到有一天你所在地区发生了停电，所有服务器都停止工作。
 
-### Geographic Distribution and High Availability
+### 地理分布与高可用性
 
-You took one of the application servers and the secondary database server and brought them to your friend's garage, several blocks away from your house. Now, if servers in your garage fail, your system remains available because servers in your friend's garage are running. That was smart. Although, it cost you additional expenses for one more server rack and the additional load balancer server. The setup worked really well for a while, until one day users from India said that enough is enough and they are no longer willing to accept poor performance of your system. Latencies for requests from India to the US were indeed high. At that point, you decided to call your friends in India and ask them to build exactly the same infrastructure you built on your own. You built in the US, so that India users are served by the system that is physically located in India. Nice. But what about users in South Africa, China, Australia, Brazil? They also expect high performance from your system.
+此时，你决定进一步提高系统的可靠性。你将其中一台应用服务器和备用数据库服务器带到了朋友的车库，距离你家几条街。现在，如果你家车库的服务器发生故障，系统仍然可以通过朋友车库的服务器保持可用。这很聪明，尽管这让你额外花费了一台服务器机架和额外的负载均衡器服务器。
 
-### System Improvements
+## 性能扩展
 
-Actually, there are many things we can further improve in this small system. For example, this system is still not reliable. There is at least one point of failure—the database. Only one database server handles requests. The second database server only replicates data for durability. It doesn't serve requests from users. If the primary database server fails, the secondary server must somehow become primary. Later in the course, we will discuss how to solve this particular problem. For now, let me please not go too deep into details, as I hope my main point is clear.
+### 地理位置优化
 
-## Building Highly Available Distributed Systems
+这个设置运行得非常好，直到有一天，来自印度的用户表示，他们无法再接受系统的低性能。来自印度到美国的请求延迟确实很高。于是，你决定联系在印度的朋友，要求他们建立与你在美国相同的基础设施。你在美国建立了系统，因此印度用户由位于印度的系统服务。不错。但南非、中国、澳大利亚、巴西的用户怎么办？他们也期望系统具有高性能。
 
-To build highly available, highly performant, scalable, durable, secure distributed systems, we not only have to know software design principles and best practices, but we also need to understand how to build infrastructure for such systems. Fortunately, there are not so many things we should know as software engineers. Let's discuss a few key ones.
+### 系统改进
 
-### Key Parameters of Servers
+实际上，我们可以进一步改进这个小系统。例如，这个系统仍然不够可靠。至少有一个故障点——数据库。只有一台数据库服务器处理请求，第二台数据库服务器仅用于数据复制和耐久性。它不为用户处理请求。如果主数据库服务器失败，备用服务器必须以某种方式成为主服务器。在本课程的后面部分，我们将讨论如何解决这个具体问题。现在，请让我暂时不深入细节，因为我希望我的主要观点已经明确。
 
-First, we have servers. There are four key parameters of a server:
+## 构建高可用性分布式系统
+
+要构建高度可用、高性能、可扩展、耐久、安全的分布式系统，我们不仅需要了解软件设计原则和最佳实践，还需要了解如何为这些系统构建基础设施。幸运的是，作为软件工程师，我们不需要了解太多东西。让我们讨论几个关键点。
+
+### 服务器的关键参数
+
+首先，我们有服务器。服务器有四个关键参数：
 
 1. **CPU**
-2. **Memory Size**
-3. **Disk Size**
-4. **Network Bandwidth**
+2. **内存大小**
+3. **磁盘大小**
+4. **网络带宽**
 
-For every component of the system we design, we choose servers based on what resources the component needs the most. Out of these four, CPU is the easiest parameter to scale, while network I.O. is typically the hardest to scale.
+对于我们设计的系统的每个组件，我们根据组件最需要的资源选择服务器。在这四个参数中，CPU是最容易扩展的，而网络I/O通常是最难扩展的。
 
-### Server Racks
+### 服务器机架
 
-Next, we have server racks. Multiple servers are mounted within a server rack. It is convenient to place and maintain servers in a rack, as servers are physically easier to reach, examine, and manipulate. It also simplifies cooling and increases security, as servers can be locked in place in a rack. Each rack typically has its own network and power source.
+接下来，我们有服务器机架。多个服务器安装在服务器机架中。将服务器放置和维护在机架中很方便，因为服务器在物理上更容易接触、检查和操作。这也简化了冷却并提高了安全性，因为服务器可以锁定在机架中。每个机架通常有自己的网络和电源。
 
-**Chart 1: Comparison of Server Key Parameters**
+**图表 1：服务器关键参数对比**
 
-| Parameter       | Scalability Ease | Description                        |
-|-----------------|-------------------|------------------------------------|
-| CPU             | High              | Easiest to scale                    |
-| Memory          | Medium            | Needs scaling based on demand      |
-| Disk            | Medium            | Needs scaling based on storage needs|
-| Network Bandwidth | Low              | Hardest to scale, requires high bandwidth and low latency connections |
+| 参数          | 容易扩展性 | 说明                           |
+|---------------|------------|--------------------------------|
+| CPU           | 高         | 最容易扩展                      |
+| 内存           | 中         | 需要根据需求进行扩展               |
+| 磁盘           | 中         | 需要根据存储需求进行扩展           |
+| 网络带宽       | 低         | 最难扩展，需要高带宽和低延迟网络连接 |
 
-### Design Considerations for Server Racks
+### 服务器机架的设计考量
 
-Regarding racks, the most important thing is that system designers usually don't care much about racks, but sometimes they do. Specifically, we may want all our servers to live in different racks, so that when one rack dies, we have spare hardware in other racks. This increases the availability of the system. Or vice versa, we may want all our servers to be placed as close to each other as possible in a single rack. We need these servers to talk to each other, and we want to minimize latency of communication. In this case, we trade performance over availability.
+关于机架，最重要的是系统设计师通常不太关心机架，但有时会需要。例如，我们可能希望所有服务器位于不同的机架中，这样当一个机架发生故障时，其他机架中有备用硬件。这提高了系统的可用性。或者相反，我们可能希望所有服务器尽可能接近地放置在单个机架中。我们需要这些服务器之间相互通信，并且希望最小化通信延迟。在这种情况下，我们牺牲可用性以换取性能。
 
-### Data Centers and Availability Zones
+### 数据中心与可用性区域
 
-Next, we have data centers. A data center is a building that has lots and lots of racks. The data center has independent power, cooling, and physical security. It's like your house garage from the startup example, but is much more expensive. It is possible for the whole data center to be connected to the power supply system. But it's not completely unavailable at some point. For example, due to power outages, lightning strikes, tornadoes, earthquakes. Do you remember what we did with our garage when there was a power outage? Right, we moved half of our servers to the friend's garage. Exactly the same idea applies to data centers. And it has a cool name: **Availability Zone**.
+接下来，我们有数据中心。数据中心是一栋拥有大量机架的建筑。数据中心拥有独立的电源、冷却和物理安全。它类似于初创公司示例中的车库，但价格要昂贵得多。整个数据中心可能连接到电力供应系统。但它并非在某些时候完全不可用。例如，由于停电、雷击、龙卷风、地震等原因。你还记得我们在停电时对车库做了什么吗？对，我们将一半的服务器搬到了朋友的车库。同样的想法适用于数据中心。它有一个酷炫的名字，**可用性区域（Availability Zone）**。
 
-An availability zone is one or more discrete data centers with independent power and networking. Availability zones help to ensure high availability and scalability. Instead of keeping all our system's hardware in a single data center, servers are distributed across multiple data centers. When there are availability issues in one data center, or not enough servers available, we can rely on other data centers in the availability zone.
+一个可用性区域是一到多个具有独立电源和网络的离散数据中心。可用性区域有助于确保高可用性和可扩展性。与其将系统的所有硬件集中在一个数据中心，不如将服务器分布在多个数据中心。当一个数据中心出现可用性问题，或服务器不足时，我们可以依赖可用性区域内的其他数据中心。
 
-### Regions and Global Deployment
+### 区域与全球部署
 
-A group of isolated and physically separate AZs within a geographic area is called a **region**. Remember in the startup example, we called our India friends to build a copy of the system in India. In region terms, U.S. and India represent two separate regions. In reality, though, a single country may have multiple regions. For example, U.S. East Coast region and West Coast region. Typically, there are at least two availability zones in each region. They are not too far away from each other within a radius of 100 kilometers. AZs in a region are interconnected with high bandwidths and low latency networking. Network latency between AZs is less than 2 milliseconds.
+一个地理区域内的一组隔离且物理上分离的可用性区域称为**区域（Region）**。记得在初创公司示例中，我们叫印度的朋友在印度建立了系统的副本。从区域的角度看，美国和印度代表两个独立的区域。实际上，一个国家可能有多个区域。例如，美国东海岸区域和西海岸区域。通常，每个区域至少有两个可用性区域。它们之间的距离不超过100公里。区域内的可用性区域通过高带宽和低延迟的网络互联。可用性区域之间的网络延迟少于2毫秒。
 
-### Summary of Global System Architecture
+### 全球系统架构总结
 
-Let's summarize what we have discussed:
+让我们总结一下我们讨论的内容：
 
-- We have **regions** spread all over the world.
-- Each region consists of one or more **availability zones**, where each availability zone consists of one or more **data centers**.
-- Each data center contains lots of **racks**, and multiple **servers** are mounted within each rack.
-- There are several different types of servers:
-  - Some are optimized for compute-intensive workloads, and they have many CPU cores.
-  - Some are optimized for memory-intensive workloads, and they have a lot of RAM.
-  - There are servers optimized for high local disk throughput, for both reads and writes.
+- 我们有分布在全球各地的**区域**。
+- 每个区域由一个或多个**可用性区域**组成。
+- 每个可用性区域由一个或多个**数据中心**组成。
+- 每个数据中心包含大量**机架**，每个机架中安装了多个**服务器**。
+- 有几种不同类型的服务器：
+  - 针对计算密集型工作负载优化，拥有多个CPU核心。
+  - 针对内存密集型工作负载优化，拥有大量RAM。
+  - 针对高本地磁盘吞吐量优化，适用于读取和写入。
 
-### Deployment Strategies for Non-Functional Requirements
+### 非功能性需求的部署策略
 
-When designing the system to address non-functional requirements, you should keep in mind where and how we are going to deploy it.
+当设计系统以满足非功能性需求时，你应该记住我们将如何以及在哪里部署它。
 
-- **Worldwide Scale**: Deploy a copy of our system to every region.
-  - Improves performance, as the system is physically closer to users.
-  - Increases availability, as even if the whole region is down, we can forward user requests to other regions.
-  - Improves scalability, as there is more hardware available for allocation.
+- **全球规模**：在每个区域部署系统的副本。
+  - 提高性能，因为系统离用户更近。
+  - 提高可用性，即使整个区域宕机，也可以将用户请求转发到其他区域。
+  - 提高可扩展性，有更多的硬件可用于分配。
 
-- **Within a Region**: Deploy the system to multiple availability zones.
-  - Further increases availability and scalability of the system.
-  - Increases durability, as we can replicate data quickly between zones.
+- **区域内部署**：在多个可用性区域部署系统。
+  - 进一步提高系统的可用性和可扩展性。
+  - 提高耐久性，因为我们可以快速在区域之间复制数据。
 
-- **Within a Data Center**: Deploy the system to multiple availability zones.
-  - If availability is critical, deploy two servers in different racks.
+- **数据中心内部署**：在每个数据中心内部署多个可用性区域。
+  - 如果可用性至关重要，可能希望在不同的机架中部署两台服务器。
 
-- **Component Deployment**: Deploy different components of the system, like various microservices, to servers optimized for the workload of each component.
+- **组件部署**：将系统的不同组件，如各种微服务，部署到针对每个组件工作负载优化的服务器上。
 
-## Comparative Charts
+## 对比图表
 
-**Chart 2: System Deployment Hierarchy**
+**图表 2：系统部署层级**
 
 ```mermaid
 graph TD;
-    A[Regions] --> B[Availability Zones]
-    B --> C[Data Centers]
-    C --> D[Server Racks]
-    D --> E[Servers]
-    E --> F[Microservices]
+    A[全球区域] --> B[可用性区域]
+    B --> C[数据中心]
+    C --> D[服务器机架]
+    D --> E[服务器]
+    E --> F[微服务组件]
